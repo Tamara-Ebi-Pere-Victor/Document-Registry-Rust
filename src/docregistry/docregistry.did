@@ -1,0 +1,20 @@
+type AddDocumentPayload = record { doc_hash : text; doc_name : text };
+type Document = record {
+  id : nat64;
+  owner : principal;
+  hash : text;
+  name : text;
+  created_at : nat64;
+};
+type Result = variant { Ok : nat64; Err : text };
+type Result_1 = variant { Ok : Document; Err : text };
+type VerifyDocumentPayload = record { doc_hash : text };
+type ViewDocumentPayload = record { doc_id : nat64 };
+service : {
+  add_document : (AddDocumentPayload) -> (Result);
+  delete_document : (ViewDocumentPayload) -> (Result_1);
+  get_no_of_docs : () -> (nat64) query;
+  get_user_docs : () -> (opt vec nat64) query;
+  verify_document : (VerifyDocumentPayload) -> (Result_1) query;
+  view_document : (ViewDocumentPayload) -> (Result_1) query;
+}
