@@ -1,22 +1,9 @@
 {
   "canisters": {
-    "document_registry_rust_backend": {
-      "candid": "src/document_registry_rust_backend/document_registry_rust_backend.did",
-      "package": "document_registry_rust_backend",
+    "docregistry": {
+      "candid": "src/docregistry/docregistry.did",
+      "package": "docregistry",
       "type": "rust"
-    },
-    "document_registry_rust_frontend": {
-      "dependencies": [
-        "document_registry_rust_backend"
-      ],
-      "frontend": {
-        "entrypoint": "src/document_registry_rust_frontend/src/index.html"
-      },
-      "source": [
-        "src/document_registry_rust_frontend/assets",
-        "dist/document_registry_rust_frontend/"
-      ],
-      "type": "assets"
     }
   },
   "defaults": {
