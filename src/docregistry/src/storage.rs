@@ -1,14 +1,14 @@
 use crate::types::*;
 use candid::Principal;
 use ic_cdk::api::time;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 #[derive(candid::CandidType, Clone, Serialize, Deserialize)]
 pub struct DocReg {
     pub no_of_documents: u64,
     pub id_2_hash_mapping: HashMap<u64, String>,
     pub hash_2_doc_mapping: HashMap<String, Document>,
-    pub user_doc_mapping: HashMap<Principal, Vec<u64>>,
+    pub user_doc_mapping: HashMap<Principal, HashSet<u64>>,
 }
 
 impl Default for DocReg {
@@ -25,7 +25,6 @@ impl Default for DocReg {
 impl DocReg {
     pub fn add_document(&mut self, doc_hash: &str, doc_name: &str) -> Result<u64, String> {
         let next_doc_id = self.no_of_documents;
-        self.no_of_documents += 1;
         let document = Document {
             id: next_doc_id,
             name: String::from(doc_name),
@@ -38,22 +37,18 @@ impl DocReg {
             .insert(next_doc_id, String::from(doc_hash));
 
         self.hash_2_doc_mapping
-            .insert(String::from(doc_hash), document);
+            .insert(String::from(doc_hash), document.clone());
 
-        let user_map = self.user_doc_mapping.get_mut(&ic_cdk::caller());
+        let user_set = self
+            .user_doc_mapping
+            .entry(ic_cdk::caller())
+            .or_insert_with(HashSet::new);
 
-        match user_map {
-            Some(value) => {
-                value.push(next_doc_id);
-                Ok(next_doc_id)
-            }
-            None => {
-                let mut value: Vec<u64> = Vec::new();
-                value.push(next_doc_id);
-                self.user_doc_mapping.insert(ic_cdk::caller(), value);
-                Ok(next_doc_id)
-            }
-        }
+        user_set.insert(next_doc_id);
+
+        self.no_of_documents += 1;
+
+        Ok(next_doc_id)
     }
 
     pub fn verify_document(&self, doc_hash: &str) -> Result<Document, String> {
@@ -62,22 +57,12 @@ impl DocReg {
             .get(doc_hash)
             .ok_or_else(|| format!("Document with hash {} not found", doc_hash))?;
 
+        // Implement document authenticity verification here
+
         Ok(document.clone())
     }
 
     pub fn view_document(&self, doc_id: u64) -> Result<Document, String> {
-        let user_docs = self
-            .user_doc_mapping
-            .get(&ic_cdk::caller())
-            .ok_or_else(|| format!("You do not have any document in registry"))?;
-
-        if !user_docs.contains(&doc_id) {
-            return Err(format!(
-                "You do not have access to this document with id {}",
-                doc_id
-            ));
-        }
-
         let doc_hash = self
             .id_2_hash_mapping
             .get(&doc_id)
@@ -88,24 +73,33 @@ impl DocReg {
             .get(doc_hash)
             .ok_or_else(|| format!("Document with id {} not found", doc_id))?;
 
-        Ok(document.clone())
-    }
-
-    pub fn delete_document(&mut self, doc_id: u64) -> Result<Document, String> {
-        let user_docs = self
+        let user_set = self
             .user_doc_mapping
-            .get_mut(&ic_cdk::caller())
+            .get(&ic_cdk::caller())
             .ok_or_else(|| format!("You do not have any document in registry"))?;
 
-        if !user_docs.contains(&doc_id) {
+        if !user_set.contains(&doc_id) {
             return Err(format!(
                 "You do not have access to this document with id {}",
                 doc_id
             ));
         }
 
-        let index = user_docs.iter().position(|x| *x == doc_id).unwrap();
-        user_docs.remove(index);
+        Ok(document.clone())
+    }
+
+    pub fn delete_document(&mut self, doc_id: u64) -> Result<Document, String> {
+        let user_set = self
+            .user_doc_mapping
+            .get_mut(&ic_cdk::caller())
+            .ok_or_else(|| format!("You do not have any document in registry"))?;
+
+        if !user_set.contains(&doc_id) {
+            return Err(format!(
+                "You do not have access to this document with id {}",
+                doc_id
+            ));
+        }
 
         let doc_hash = self
             .id_2_hash_mapping
@@ -117,13 +111,14 @@ impl DocReg {
             .remove(&doc_hash)
             .ok_or_else(|| format!("Document with id {} not found", doc_id))?;
 
+        user_set.remove(&doc_id);
         self.no_of_documents -= 1;
 
         Ok(document.clone())
     }
 
     pub fn get_user_docs(&self, user: Principal) -> Option<Vec<u64>> {
-        self.user_doc_mapping.get(&user).cloned()
+        self.user_doc_mapping.get(&user).map(|set| set.iter().cloned().collect())
     }
 
     pub fn get_no_of_docs(&self) -> u64 {
