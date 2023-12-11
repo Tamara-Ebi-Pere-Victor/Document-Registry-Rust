@@ -9,8 +9,10 @@
     "Canister"
   ],
   "scripts": {
+    "deploy-ledger": "./scripts/deploy-ledger.sh",
+    "faucet": "./scripts/run-faucet.sh",
     "generate": "./did.sh && dfx generate",
-    "gen-deploy": "./did.sh && dfx generate && dfx deploy -y"
+    "deploy-docreg": "./scripts/doc-reg.sh"
   },
   "engines": {
     "node": "^12 || ^14 || ^16 || ^18"

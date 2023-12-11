@@ -1,10 +1,12 @@
 use crate::types::*;
-use candid::Principal;
+use candid::{Nat, Principal};
 use ic_cdk::api::time;
 use std::collections::HashMap;
 
 #[derive(candid::CandidType, Clone, Serialize, Deserialize)]
 pub struct DocReg {
+    pub admin: String,
+    pub fee: Nat,
     pub no_of_documents: u64,
     pub id_2_hash_mapping: HashMap<u64, String>,
     pub hash_2_doc_mapping: HashMap<String, Document>,
@@ -14,6 +16,8 @@ pub struct DocReg {
 impl Default for DocReg {
     fn default() -> Self {
         DocReg {
+            admin: String::from(""),
+            fee: 0u128.into(),
             no_of_documents: 0,
             id_2_hash_mapping: HashMap::new(),
             hash_2_doc_mapping: HashMap::new(),
@@ -23,6 +27,11 @@ impl Default for DocReg {
 }
 
 impl DocReg {
+    pub fn initialize(&mut self, admin: &str, fee: Nat){
+        // add admin and fee to pay
+        self.admin = String::from(admin);
+        self.fee = fee;
+    }
     pub fn add_document(&mut self, doc_hash: &str, doc_name: &str) -> Result<u64, String> {
         let next_doc_id = self.no_of_documents;
         self.no_of_documents += 1;
@@ -128,5 +137,9 @@ impl DocReg {
 
     pub fn get_no_of_docs(&self) -> u64 {
         self.no_of_documents
+    }
+
+    pub fn get_payment_info(&self)-> (String, Nat) {
+        (self.admin.clone(), self.fee.clone())
     }
 }

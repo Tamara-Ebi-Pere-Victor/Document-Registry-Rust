@@ -14,6 +14,49 @@ The application uses the encryption method sha256 and to produce a distinct key 
 1. This Dapp can be used by document issuing organizations, like schools, business, e.t.c.
 2. It can be used to ensure validity of a perticular document, and help reduce the effect of forgery in the professional world.
 
+## UPDATE Due to feedback
+
+I added the following features due to feedbacks from the dacade platform
+
+1. A ICRC1-Ledger to enable the doc registry canister accept payments of dummy tokens.
+  
+- when users try to add a document they pay a fee
+- when users try to verify a document they pay half the fee.
+
+    To set up this ledger follow the next instructions
+
+  - Start by creating the following identities on your dfx instance, these identities make the creation of the ledger seamless. For more information about the identities check the [ICRC1 tutorial](https://internetcomputer.org/docs/current/developer-docs/integrations/icrc-1/icrc1-ledger-setup)
+
+      ```bash
+      # The minter identity
+      dfx identity new minter
+
+      # The archive controller
+      dfx identity new archive_controller
+      ```
+
+  - Then proceed to deploy the ICRC1 Ledger, a script has been supplied for that. This sets up the ledger.
+
+    ```bash
+    npm run deploy-ledger
+    ```
+  
+  - Now you can run the faucet script which mints new tokens to our coffee canister. `<amount>` is a placeholder for any amount of tokens in e8s you want to mint
+
+    ```bash
+    # npm run faucet <amount>
+    npm run faucet 100_000_000_000
+    ```
+
+2. An init function which takes the text format of the admin principal (where the fee will be sent to) and the fee to be paid. This init function is called as we deploy the doc registry. A helper script has been provided for that.
+
+    ```bash
+    # npm run deploy-docreg <fee>
+    npm run deploy-docreg 10_000
+    ```
+
+    `<fee>` is the place holder for the fee you want users to pay to add documents. Also recall that users pay half this fee to verify any document.
+
 ## More Information
 
 To learn more before you start working with docregistry, see the following documentation available online:
@@ -34,8 +77,16 @@ To test project locally, use the following commands:
 # Starts the replica, running in the background
 dfx start --background --clean
 
-# This deploys the canister to the replica and generates your candid interface
-npm run gen-deploy
+# deploy the icp ledger
+npm run deploy-ledger 
+
+# deploy the doc reg canister
+# npm run deploy-docreg <fee>
+npm run deploy-docreg 10_000
+
+# run the faucet
+# npm run faucet <amount>
+npm run faucet 100_000_000_000
 ```
 
 Once the job completes, your application will be available at
@@ -65,3 +116,4 @@ http://localhost:4943?canisterId={candid_ui_id}&id={canister_id}
 ```
 
 2. Next go to the candid UI link generated and test out the application.
+

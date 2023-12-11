@@ -1,4 +1,4 @@
-use candid::Principal;
+use candid::{Nat, Principal};
 
 #[derive(candid::CandidType, Clone, Serialize, Deserialize)]
 pub struct Document {
@@ -28,4 +28,16 @@ pub struct ViewDocumentPayload {
 #[derive(candid::CandidType, Serialize, Deserialize, Default)]
 pub struct DeleteDocumentPayload {
     pub doc_id: u64,
+}
+
+#[derive(candid::CandidType, Serialize, Deserialize)]
+pub struct TransferPayload {
+    pub owner: Principal,
+    pub amount: Nat,
+}
+
+#[derive(candid::CandidType, Serialize, Deserialize)]
+pub struct InitPayload {
+    pub admin: String,
+    pub fee: Nat,
 }
