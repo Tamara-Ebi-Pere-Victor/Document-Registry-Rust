@@ -54,10 +54,18 @@ async fn add_document(payload: AddDocumentPayload) -> Result<u64, String> {
         .map_err(|e| format!("failed to call ledger: {:?}", e))?
         .map_err(|e| format!("ledger transfer error {:?}", e));
 
-
     // add documents if fee paid successfully
     match result {
-        Ok(_value) => STORAGE.with(|storage| { storage .borrow_mut().add_document(&payload.doc_hash, &payload.doc_name)}),
+        Ok(_value) => {
+            // check if document exists
+            let doc_exists = STORAGE.with(|storage |{storage.borrow().check_document(&payload.doc_hash)});
+            // fail if it does
+            if doc_exists {
+                return Err(format!("Sorry document already present in registry"))
+            }
+            // add document if it does not
+            STORAGE.with(|storage| { storage .borrow_mut().add_document(&payload.doc_hash, &payload.doc_name)})
+        },
         Err(error) => Err(error),
     }
 }

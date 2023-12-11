@@ -74,6 +74,17 @@ impl DocReg {
         Ok(document.clone())
     }
 
+    pub fn check_document(&self, doc_hash: &str)-> bool {
+        let document = self
+            .hash_2_doc_mapping
+            .get(doc_hash);
+
+        match document {
+            Some(_doc) => true,
+            None => false
+        }
+    }
+
     pub fn view_document(&self, doc_id: u64) -> Result<Document, String> {
         let user_docs = self
             .user_doc_mapping
