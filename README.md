@@ -117,3 +117,4 @@ http://localhost:4943?canisterId={candid_ui_id}&id={canister_id}
 
 2. Next go to the candid UI link generated and test out the application.
 
+3. Trying adding documents and use the `get_admin_balance` function to check if the admin balance is truly increased.

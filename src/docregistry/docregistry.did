@@ -19,6 +19,6 @@ service : (InitPayload) -> {
   get_no_of_docs : () -> (nat64) query;
   get_principal : () -> (principal) query;
   get_user_docs : () -> (opt vec nat64) query;
-  verify_document : (VerifyDocumentPayload) -> (Result_1) query;
+  verify_document : (VerifyDocumentPayload) -> (Result_1);
   view_document : (ViewDocumentPayload) -> (Result_1) query;
 }

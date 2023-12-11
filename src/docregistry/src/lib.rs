@@ -62,7 +62,7 @@ async fn add_document(payload: AddDocumentPayload) -> Result<u64, String> {
     }
 }
 
-#[ic_cdk::query]
+#[ic_cdk::update]
 async fn verify_document(payload: VerifyDocumentPayload) -> Result<Document, String> {
     // get payment details
     let (admin, fee) = STORAGE.with(|storage| {
