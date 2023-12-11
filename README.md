@@ -41,7 +41,7 @@ I added the following features due to feedbacks from the dacade platform
     npm run deploy-ledger
     ```
   
-  - Now you can run the faucet script which mints new tokens to our coffee canister. `<amount>` is a placeholder for any amount of tokens in e8s you want to mint
+  - Now you can run the faucet script which mints new tokens to the doc reg canister. `<amount>` is a placeholder for any amount of tokens in e8s you want to mint
 
     ```bash
     # npm run faucet <amount>
