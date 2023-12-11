@@ -11,7 +11,7 @@
   "scripts": {
     "deploy-ledger": "./scripts/deploy-ledger.sh",
     "faucet": "./scripts/run-faucet.sh",
-    "generate": "./did.sh && dfx generate",
+    "generate": "./scripts/did.sh && dfx generate",
     "deploy-docreg": "./scripts/doc-reg.sh"
   },
   "engines": {
